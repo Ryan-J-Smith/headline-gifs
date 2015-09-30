@@ -22,7 +22,7 @@ USER_AGENT = "Headline Gifs Twitter Account"
 
 NUM_REDDIT_POSTS = 50
 
-MAX_TWEET_ATTEMPTS = 5
+MAX_TWEET_ATTEMPTS = 3
 
 class TwitterAPI(object):
 
@@ -100,8 +100,10 @@ def main():
 
 			# Pick a headline (and URL) that is short and hasn't been tweeted recently
 			while submission_list:
+
 				submission = submission_list.pop(0)
-			    headline = submission.title
+		    	headline = submission.title
+
 			    if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
 			        cur_headline = headline
 			        headline_url = submission.url
@@ -118,9 +120,11 @@ def main():
 
 			tweet_msg = cur_headline + ' ' + short_url
 			twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
-		
+			tweet_posted = True
+
 		except:
 			print("Tweet failed. Getting next headline.")
+
 
 	if tweet_posted:
 		print tweet_msg
