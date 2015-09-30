@@ -17,7 +17,7 @@ GIF_SITE_URL = 'http://replygif.net/random'
 MAX_GIF_SIZE = 3E6 # In Bytes
 
 TWEET_BUFFER_LEN = 30
-MAX_HEADLINE_LEN = 100
+MAX_HEADLINE_LEN = 95
 USER_AGENT = "Headline Gifs Twitter Account"
 
 NUM_REDDIT_POSTS = 50
