@@ -1,5 +1,5 @@
 *.pyc
 *.log
 *.dat
-*.gif
+reaction.gif
 credentials.py
