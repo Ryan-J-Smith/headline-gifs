@@ -8,6 +8,7 @@ import praw
 import os
 import shutil
 import codecs
+import time
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 LOCAL_IMG_FILE = SCRIPT_DIR + '\\reaction.gif'
@@ -19,7 +20,7 @@ GIF_SITE_URL = 'http://replygif.net/random'
 MAX_GIF_SIZE = 3E6 # In Bytes
 
 TWEET_BUFFER_LEN = 30
-MAX_HEADLINE_LEN = 95
+MAX_HEADLINE_LEN = 90
 USER_AGENT = "Headline Gifs Twitter Account"
 
 NUM_REDDIT_POSTS = 50
@@ -93,46 +94,35 @@ def main():
 	recent_headlines = get_recent_tweets()
 
 	tweet_posted = False
-	num_attempts = 0
 
-	while (not tweet_posted) and (num_attempts < MAX_TWEET_ATTEMPTS):
-		num_attempts += 1
 
-		try:
+	# Pick a headline (and URL) that is short and hasn't been tweeted recently
+	while submission_list:
 
-			# Pick a headline (and URL) that is short and hasn't been tweeted recently
-			while submission_list:
+		submission = submission_list.pop(0)
+		headline = submission.title
+		if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
+			cur_headline = headline
+			headline_url = submission.url
+			break
 
-				submission = submission_list.pop(0)
-				headline = submission.title
-				if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
-					cur_headline = headline
-					headline_url = submission.url
-					break
+	# Shorten URL with bit.ly
+	# shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
+	# payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
+	# res = requests.get(shorten_url, params = payload)
+	# short_url = res.json()['data']['url']
+	short_url = headline_url
 
-			# Shorten URL with bit.ly
-			shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
-			payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
-			res = requests.get(shorten_url, params = payload)
-			short_url = res.json()['data']['url']
+	# Compose and post tweet
+	twitter = TwitterAPI()
 
-			# Compose and post tweet
-			twitter = TwitterAPI()
-
-			tweet_msg = cur_headline + ' ' + short_url
-			twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
-			tweet_posted = True
-
-		except:
-			print("Tweet failed. Getting next headline.")
-
+	tweet_msg = cur_headline + ' ' + short_url
+	twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
+	tweet_posted = True
 
 	if tweet_posted:
 		print tweet_msg
 		update_recent_tweets(cur_headline)
-
-
-
 
 if __name__ == "__main__":
 	main()
