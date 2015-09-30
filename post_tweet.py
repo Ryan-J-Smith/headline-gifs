@@ -83,16 +83,24 @@ def main():
 	submission_list = []
 	r = praw.Reddit(user_agent=USER_AGENT)
 	submissions = r.get_subreddit('news').get_top(limit=NUM_REDDIT_POSTS)
+	
+	# Convert list of submissions to list (currently generator)
 	for submission in submissions:
 	    submission_list.append(submission)
 
+	recent_headlines = get_recent_tweets()
+
 	tweet_posted = False
 	num_attempts = 0
+
 	while (not tweet_posted) and (num_attempts < MAX_TWEET_ATTEMPTS):
+		num_attempts += 1
+
 		try:
+
 			# Pick a headline (and URL) that is short and hasn't been tweeted recently
-			recent_headlines = get_recent_tweets()
-			for submission in submission_list:
+			while submission_list:
+				submission = submission_list.pop(0)
 			    headline = submission.title
 			    if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
 			        cur_headline = headline
