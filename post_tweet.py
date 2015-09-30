@@ -11,8 +11,8 @@ import codecs
 import time
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-LOCAL_IMG_FILE = SCRIPT_DIR + '\\reaction.gif'
-RECENT_TWEETS_FILE = SCRIPT_DIR + '\\recent_tweets.dat'
+LOCAL_IMG_FILE = SCRIPT_DIR + '/reaction.gif'
+RECENT_TWEETS_FILE = SCRIPT_DIR + '/recent_tweets.dat'
 
 print LOCAL_IMG_FILE
 
