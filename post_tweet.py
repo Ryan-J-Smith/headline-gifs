@@ -73,56 +73,59 @@ def get_gif():
         shutil.copyfileobj(res.raw, f)
 
 def main():
-	# Get a gif
-	get_gif()
-	gif_size = os.path.getsize(LOCAL_IMG_FILE)
-	
-	# Ensure gif is of appropriate size
-	while gif_size > MAX_GIF_SIZE:
-		get_gif()
-		gif_size = os.path.getsize(LOCAL_IMG_FILE)
+    # Get a gif
+    get_gif()
+    gif_size = os.path.getsize(LOCAL_IMG_FILE)
+    
+    # Ensure gif is of appropriate size
+    while gif_size > MAX_GIF_SIZE:
+        get_gif()
+        gif_size = os.path.getsize(LOCAL_IMG_FILE)
 
-	# Get reddit posts
-	submission_list = []
-	r = praw.Reddit(user_agent=USER_AGENT)
-	submissions = r.get_subreddit('news').get_top(limit=NUM_REDDIT_POSTS)
-	
-	# Convert list of submissions to list (currently generator)
-	for submission in submissions:
-	    submission_list.append(submission)
+    # Get reddit posts
+    submission_list = []
+    r = praw.Reddit(user_agent=USER_AGENT)
+    submissions = r.get_subreddit('news').get_top(limit=NUM_REDDIT_POSTS)
+    
+    # Convert list of submissions to list (currently generator)
+    for submission in submissions:
+        submission_list.append(submission)
 
-	recent_headlines = get_recent_tweets()
+    recent_headlines = get_recent_tweets()
 
-	tweet_posted = False
+    tweet_posted = False
 
 
-	# Pick a headline (and URL) that is short and hasn't been tweeted recently
-	while submission_list:
+    # Pick a headline (and URL) that is short and hasn't been tweeted recently
+    while submission_list:
 
-		submission = submission_list.pop(0)
-		headline = submission.title
-		if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
-			cur_headline = headline
-			headline_url = submission.url
-			break
+        submission = submission_list.pop(0)
+        headline = submission.title
+        if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
+            cur_headline = headline
+            headline_url = submission.url
+            break
 
-	# Shorten URL with bit.ly
-	# shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
-	# payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
-	# res = requests.get(shorten_url, params = payload)
-	# short_url = res.json()['data']['url']
-	short_url = headline_url
+    # Shorten URL with bit.ly
+    shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
+    payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
+    res = requests.get(shorten_url, params = payload)
+    
+    try:
+        short_url = res.json()['data']['url']
+    except:
+        short_url = headline_url
 
-	# Compose and post tweet
-	twitter = TwitterAPI()
+    # Compose and post tweet
+    twitter = TwitterAPI()
 
-	tweet_msg = cur_headline + ' ' + short_url
-	twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
-	tweet_posted = True
+    tweet_msg = cur_headline + ' ' + short_url
+    twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
+    tweet_posted = True
 
-	if tweet_posted:
-		print tweet_msg
-		update_recent_tweets(cur_headline)
+    if tweet_posted:
+        print tweet_msg
+        update_recent_tweets(cur_headline)
 
 if __name__ == "__main__":
-	main()
+    main()
