@@ -13,6 +13,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 LOCAL_IMG_FILE = SCRIPT_DIR + '\\reaction.gif'
 RECENT_TWEETS_FILE = SCRIPT_DIR + '\\recent_tweets.dat'
 
+print LOCAL_IMG_FILE
+
 GIF_SITE_URL = 'http://replygif.net/random'
 MAX_GIF_SIZE = 3E6 # In Bytes
 
@@ -102,12 +104,11 @@ def main():
 			while submission_list:
 
 				submission = submission_list.pop(0)
-		    	headline = submission.title
-
-			    if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
-			        cur_headline = headline
-			        headline_url = submission.url
-			        break
+				headline = submission.title
+				if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
+					cur_headline = headline
+					headline_url = submission.url
+					break
 
 			# Shorten URL with bit.ly
 			shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
