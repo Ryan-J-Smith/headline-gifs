@@ -22,6 +22,8 @@ USER_AGENT = "Headline Gifs Twitter Account"
 
 NUM_REDDIT_POSTS = 50
 
+MAX_TWEET_ATTEMPTS = 5
+
 class TwitterAPI(object):
 
     def __init__(self): 
@@ -84,27 +86,40 @@ def main():
 	for submission in submissions:
 	    submission_list.append(submission)
 
-	# Pick a headline (and URL) that is short and hasn't been tweeted recently
-	recent_headlines = get_recent_tweets()
-	for submission in submission_list:
-	    headline = submission.title
-	    if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
-	        cur_headline = headline
-	        headline_url = submission.url
-	        break
+	tweet_posted = False
+	num_attempts = 0
+	while (not tweet_posted) and (num_attempts < MAX_TWEET_ATTEMPTS):
+		try:
+			# Pick a headline (and URL) that is short and hasn't been tweeted recently
+			recent_headlines = get_recent_tweets()
+			for submission in submission_list:
+			    headline = submission.title
+			    if (len(headline) < MAX_HEADLINE_LEN) and (headline not in recent_headlines):
+			        cur_headline = headline
+			        headline_url = submission.url
+			        break
 
-	# Shorten URL with bit.ly
-	shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
-	payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
-	res = requests.get(shorten_url, params = payload)
-	short_url = res.json()['data']['url']
+			# Shorten URL with bit.ly
+			shorten_url = 'https://api-ssl.bitly.com/v3/shorten'
+			payload = {'access_token': BITLY_TOKEN, 'longUrl': headline_url, 'domain':'bit.ly'}
+			res = requests.get(shorten_url, params = payload)
+			short_url = res.json()['data']['url']
 
-	# Compose and post tweet
-	twitter = TwitterAPI()
+			# Compose and post tweet
+			twitter = TwitterAPI()
 
-	tweet_msg = cur_headline + ' ' + short_url
-	twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
-	update_recent_tweets(cur_headline)
+			tweet_msg = cur_headline + ' ' + short_url
+			twitter.tweet_with_img(LOCAL_IMG_FILE, tweet_msg)
+		
+		except:
+			print("Tweet failed. Getting next headline.")
+
+	if tweet_posted:
+		print tweet_msg
+		update_recent_tweets(cur_headline)
+
+
+
 
 if __name__ == "__main__":
 	main()
