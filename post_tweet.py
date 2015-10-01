@@ -9,6 +9,7 @@ import os
 import shutil
 import codecs
 import time
+import random
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 LOCAL_IMG_FILE = os.path.join(SCRIPT_DIR, 'reaction.gif')
@@ -91,6 +92,7 @@ def main():
     for submission in submissions:
         submission_list.append(submission)
 
+    submission_list = random.shuffle(submission_list)
     recent_headlines = get_recent_tweets()
 
     tweet_posted = False
