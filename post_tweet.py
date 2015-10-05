@@ -10,6 +10,7 @@ import shutil
 import codecs
 import time
 import random
+import datetime
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 LOCAL_IMG_FILE = os.path.join(SCRIPT_DIR, 'reaction.gif')
@@ -27,6 +28,9 @@ USER_AGENT = "Headline Gifs Twitter Account"
 NUM_REDDIT_POSTS = 50
 
 MAX_TWEET_ATTEMPTS = 3
+
+subreddit_list = ['news', 'upliftingnews', 'upliftingnews']
+
 
 class TwitterAPI(object):
 
@@ -86,13 +90,18 @@ def main():
     # Get reddit posts
     submission_list = []
     r = praw.Reddit(user_agent=USER_AGENT)
-    submissions = r.get_subreddit('news').get_top(limit=NUM_REDDIT_POSTS)
+
+    cur_hour = datetime.datetime.now().hour 
+    cur_subreddit_idx = cur_hour % len(subreddit_list)
+    cur_subreddit = subreddit_list[cur_subreddit_idx]
+
+    submissions = r.get_subreddit(cur_subreddit).get_top(limit=NUM_REDDIT_POSTS)
     
     # Convert list of submissions to list (currently generator)
     for submission in submissions:
         submission_list.append(submission)
 
-    submission_list = random.shuffle(submission_list)
+    random.shuffle(submission_list)
     recent_headlines = get_recent_tweets()
 
     tweet_posted = False
